@@ -1,0 +1,54 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+#include <Keypad.h>
+const byte ROWS = 4; //four rowsconst byte COLS = 4; //four columns
+//define the cymbols on the buttons of the keypads
+char hexaKeys[ROWS][COLS] = { {'1','2','3','A'}, {'4','5','6','B'},{'7','8','9','C'}, {'*','0','#','D'}};byte rowPins[ROWS] = {11, 10, 9, 8}; //connect to the row pinouts of the keypad
+byte colPins[COLS] = {7, 6, 5, 4}; //connect to the column pinouts of the keypad
+//initialize an instance of class NewKeypad
+Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
+#include <SoftwareSerial.h>
+SoftwareSerial fingerPrint(2, 3);
+#include<Servo.h>
+//Servo myServo;
+#include <Adafruit_Fingerprint.h>
+uint8_t id;
+Adafruit_Fingerprint finger = Adafruit_Fingerprint(&fingerPrint);
+#define enroll A0#define del A1#define up A2#define down A3 //#define openLight 6//#define closeLight 7//#define servoPin 5 char customKey;char arr[6], ii;         int bal_amt, bal_amt1 = 9999,  bal_amt2
+= 9999, amt;
+void setup(){ delay(1000);
+   pinMode(LED_BUILTIN, OUTPUT); digitalWrite(LED_BUILTIN, LOW);
+    //myServo.attach(servoPin);  //myServo.write(180);
+    pinMode(enroll, INPUT_PULLUP);    pinMode(up, INPUT_PULLUP);
+    pinMode(down, INPUT_PULLUP);    pinMode(del, INPUT_PULLUP);
+    //pinMode(openLight, OUTPUT);    //pinMode(closeLight, OUTPUT);
+    // initialize the LCD
+    lcd.begin();  // Turn on the blacklight and print a message.     lcd.backlight();  lcd.setCursor(0,0);    lcd.print("Security System");   lcd.setCursor(0,1);    lcd.print("by Finger Print");    delay(2000);   lcd.clear();
+    lcd.print("xxxxxx");    lcd.setCursor(0,1);    lcd.print("xxxxx");   delay(2000);  finger.begin(57600);  Serial.begin(9600); lcd.clear(); lcd.print("Finding Module");    lcd.setCursor(0,1);  delay(1000);
+    if (finger.verifyPassword()) {
+      Serial.println("Found fingerprint sensor!");   lcd.clear();  
+lcd.print("Found Module ");
+      delay(1000);}
+    else{
+    Serial.println("Did not find fingerprint sensor :("); lcd.clear(); lcd.print("module not Found");  lcd.setCursor(0,1); lcd.print("Check
+Connections");
+    while (1); }} void loop(){
+ lcd.setCursor(0,0); lcd.print("Press UP/Down
+"); lcd.setCursor(0,1); lcd.print("to start System"); //digitalWrite(closeLight, HIGH);
+          Serial.println("Image taken");  lcd.clear();   lcd.print("Image taken");   break;
+    case FINGERPRINT_NOFINGER:
+      Serial.println("No Finger");   lcd.clear();      lcd.print("No Finger");     break;
+      if (p != FINGERPRINT_OK)  
+  return -1;
+  p = finger.image2Tz();
+  if (p != FINGERPRINT_OK)  
+  return -1;
+  p = finger.fingerFastSearch();
+  if (p != FINGERPRINT_OK){   lcd.clear();   lcd.print("Finger Not Found");  lcd.setCursor(0,1);  lcd.print("Try Later");   delay(2000);    return -1;}   // found a match!
+  Serial.print("Found ID #");  Serial.print(finger.fingerID);  return finger.fingerID;}/*
+uint8_t deleteFingerprint(uint8_t id){  uint8_t p = -1;  
+  lcd.clear();  lcd.print("Please wait");  p = finger.deleteModel(id);
+  if (p == FINGERPRINT_OK)  {
+    Serial.println("Deleted!");   lcd.clear();   lcd.print("Finger Deleted");   lcd.setCursor(0,1);
+    lcd.print("Successfully");    delay(1000);} else{Serial.print("Something Wrong"); lcd.clear();    lcd.print("Something Wrong");    lcd.setCursor(0,1);    lcd.print("Try Again Later");  delay(20
